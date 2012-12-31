@@ -148,6 +148,8 @@ describe "an ActiveRecord model which includes PgSearch" do
         excluded = ModelWithPgSearch.create!(:content => 'bar')
 
         results = ModelWithPgSearch.search_content('foo')
+        binding.pry
+
         results.should include(included)
         results.should_not include(excluded)
       end

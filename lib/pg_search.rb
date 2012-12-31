@@ -55,6 +55,8 @@ module PgSearch
     read_attribute(:pg_search_rank).to_f
   end
 
+  private
+
   class << self
     def multisearch(*args)
       PgSearch::Document.search(*args)

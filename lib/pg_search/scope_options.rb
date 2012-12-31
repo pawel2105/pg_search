@@ -13,12 +13,32 @@ module PgSearch
     end
 
     def apply(scope)
-      scope.select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
+      extended_scope(scope).pg_search_select("(#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
     end
 
     private
 
     delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :@model
+
+    module Relation
+      attr_accessor :pg_search_select_values
+
+      def clone
+        super.extend(Relation)
+      end
+
+      def pg_search_select(value)
+        relation.pg_search_select_values ||= []
+
+        relation = clone
+        relation.pg_search_select_values += Array.wrap(value)
+        relation
+      end
+    end
+
+    def extended_scope(scope)
+      scope.extend(Relation)
+    end
 
     def conditions
       config.features.map do |feature_name, feature_options|
